@@ -6,6 +6,8 @@ public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement")]
     public float moveSpeed;
+    public float sprintSpeed;
+    float speed;
 
     public float groundDrag;
 
@@ -16,6 +18,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Keybinds")]
     public KeyCode jumpKey = KeyCode.Space;
+    public KeyCode sprintKey = KeyCode.LeftShift;
 
     [Header("Ground Check")]
     public float playerH;
@@ -39,6 +42,7 @@ public class PlayerMovement : MonoBehaviour
         rb.freezeRotation = true;
         canJump = true;
         isJumping = false;
+        speed = moveSpeed;
     }
 
     // Update is called once per frame
@@ -68,12 +72,24 @@ public class PlayerMovement : MonoBehaviour
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
-        //Checks if player is ready to jump
-        if(Input.GetKeyDown(jumpKey) && canJump && grounded) {
+        // Checks if player is ready to jump
+        if (Input.GetKeyDown(jumpKey) && canJump && grounded)
+        {
             canJump = false;
             Jump();
             Invoke(nameof(ResetJump), jumpCooldown);
         }
+
+        // Checks if player is ready to sprint
+        if (Input.GetKey(sprintKey) && grounded)
+        {
+            speed = sprintSpeed;
+        }
+        else
+        {
+            speed = moveSpeed;
+        }
+
     }
 
     private void MovePlayer()
@@ -83,10 +99,10 @@ public class PlayerMovement : MonoBehaviour
 
         if(grounded) {
             //If grounded, move normally at set movement speed
-            rb.AddForce(moveDir.normalized * moveSpeed * 10f, ForceMode.Force);
+            rb.AddForce(moveDir.normalized * speed * 10f, ForceMode.Force);
         } else if(!grounded) {
             //If in the air, move at speed of air multiplier
-            rb.AddForce(moveDir.normalized * moveSpeed * 10f * airMult, ForceMode.Force);
+            rb.AddForce(moveDir.normalized * speed * 10f * airMult, ForceMode.Force);
         }
     }
 
@@ -95,8 +111,8 @@ public class PlayerMovement : MonoBehaviour
         Vector3 flatVelocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
 
         //Limit the player's velocity to max velocity
-        if(flatVelocity.magnitude > moveSpeed) {
-            Vector3 limitVelocity = flatVelocity.normalized * moveSpeed;
+        if(flatVelocity.magnitude > speed) {
+            Vector3 limitVelocity = flatVelocity.normalized * speed;
             rb.velocity = new Vector3(limitVelocity.x, rb.velocity.y, limitVelocity.z);
         }
     }
@@ -107,6 +123,7 @@ public class PlayerMovement : MonoBehaviour
         isJumping = true;
         rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
         rb.AddForce(transform.up * forceJump, ForceMode.Impulse);
+        rb.AddForce(Vector3.down * 7 * rb.mass, ForceMode.Force);
     }
 
     private void ResetJump()

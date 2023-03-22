@@ -2,55 +2,58 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Script that helps with idle movement and maneuvering around ojects if they are in the way
+// Attach this script to the pet's line of sight object specifically
+
 public class PetVision : MonoBehaviour
 {
     public GameObject petClass;
-    public GameObject playerClass;
-    bool isLooking;
+    public GameObject petInteract;
 
-    //FOR NOW JUST LOOKS AT PLAYER, BUT COULD BE USED FOR OTHER ACTIONS (NEED TO TWEAK/CHANGE)
+    public float rotateSpeed;       // Controls how fast pet will turn
+    bool reposition;                // Bool that determines whether pet should reposition themselves because of an object
+    int[] rotateDir;                // Holds -1 and 1 for random rotation direction
+    int randDir;                    // Holds random value for which direction pet should turn
+    int randIndex;                  // Holds random index from randDir for random rotation direction
 
     private void Start()
     {
-        isLooking = false;
-        petClass.transform.GetComponent<PetMovement_Idle>().enabled = true;
+        reposition = false;
+        rotateDir = new int[] {-1, 1};
+        randIndex = Random.Range(0, rotateDir.Length);
+        randDir = rotateDir[randIndex];
+        //Debug.Log("randDir : " + randDir);
     }
 
     private void Update()
     {
-        if (isLooking) {
-            //Do some fun action, probably an animation
-            //petClass.transform.RotateAround(playerClass.transform.position, playerClass.transform.up, 90f * Time.deltaTime);
-            petClass.transform.LookAt(playerClass.transform);
-
-            //I made 'em jump cause its cute, even if it is janky
-            if (playerClass.transform.GetComponent<PlayerMovement>().isJumping == true) {
-                petClass.transform.GetComponent<Rigidbody>().AddForce(petClass.transform.up * 1.5f, ForceMode.Impulse);
-                petClass.transform.GetComponent<Rigidbody>().AddForce(Vector3.down * 10 * petClass.transform.GetComponent<Rigidbody>().mass);
-            }
+        if (reposition)
+        {
+            petClass.transform.Rotate(0.0f, Time.deltaTime * ((float) randDir * rotateSpeed), 0.0f, Space.Self);
         }
     }
 
-    private void OnTriggerEnter(Collider collision)
+    private void OnTriggerStay(Collider collision)
     {
-        //Will probably hold all of the pet's "actions"
-        //Right now it just looks at the player
-
-        if (collision.gameObject.name == "Player Obj")
+        //For AI wall detection Iif something is tagged "Uninteractable" the pets sees it as an obstacle to avoid)
+        if (collision.gameObject.CompareTag("Uninteractable") && petInteract.GetComponent<PetInteraction>().isLooking == false)
         {
-            //Disable idle script, cause otherwise we have problems
-            petClass.transform.GetComponent<PetMovement_Idle>().enabled = false;
-
-            petClass.transform.LookAt(playerClass.transform);
-            isLooking = true;
+            //petClass.GetComponent<Rigidbody>().velocity = -1.0f * petClass.transform.forward * 5;
+            petClass.GetComponent<PetMovement_Idle>().shouldMove = false;
+            //petClass.GetComponent<Rigidbody>().velocity = Vector3.zero;
+            reposition = true;
         }
     }
 
     private void OnTriggerExit(Collider collision)
     {
-        petClass.transform.eulerAngles = new Vector3(0.0f, petClass.transform.eulerAngles.y, 0.0f);
-        isLooking = false;
-
-        petClass.transform.GetComponent<PetMovement_Idle>().enabled = true;
+        if (collision.gameObject.CompareTag("Uninteractable") && petInteract.GetComponent<PetInteraction>().isLooking == false)
+        {
+            randIndex = Random.Range(0, rotateDir.Length);
+            randDir = rotateDir[randIndex];
+            //Debug.Log("randDir redone: " + randDir);
+            reposition = false;
+            petClass.GetComponent<PetMovement_Idle>().shouldMove = true;
+        }
     }
 }
