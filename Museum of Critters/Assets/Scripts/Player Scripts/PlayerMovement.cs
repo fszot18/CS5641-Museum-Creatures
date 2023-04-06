@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public Transform camPos;
+
     [Header("Movement")]
     public float moveSpeed;
     public float sprintSpeed;
@@ -19,12 +21,16 @@ public class PlayerMovement : MonoBehaviour
     [Header("Keybinds")]
     public KeyCode jumpKey = KeyCode.Space;
     public KeyCode sprintKey = KeyCode.LeftShift;
+    public KeyCode crouchKey = KeyCode.LeftAlt;
 
     [Header("Ground Check")]
     public float playerH;
     public LayerMask isGround;
     bool grounded;
     public bool isJumping;
+    
+    bool isCrouched;
+    float cameraYAxis;
 
     public Transform orientation;
 
@@ -42,7 +48,10 @@ public class PlayerMovement : MonoBehaviour
         rb.freezeRotation = true;
         canJump = true;
         isJumping = false;
+        isCrouched = false;
         speed = moveSpeed;
+
+        cameraYAxis = camPos.transform.position.y;
     }
 
     // Update is called once per frame
@@ -72,8 +81,25 @@ public class PlayerMovement : MonoBehaviour
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
+        // Checks if player is ready to crouch and if they are crouching already
+        if (Input.GetKeyDown(crouchKey) && grounded)
+        {
+            if (!isCrouched)
+            {
+                camPos.transform.position = new Vector3(camPos.transform.position.x, camPos.transform.position.y - 0.75f, camPos.transform.position.z);
+                isCrouched = true;
+                speed = (moveSpeed / 2.0f);
+            }
+            else
+            {
+                camPos.transform.position = new Vector3(camPos.transform.position.x, cameraYAxis, camPos.transform.position.z);
+                isCrouched = false;
+                speed = moveSpeed;
+            }
+        }
+
         // Checks if player is ready to jump
-        if (Input.GetKeyDown(jumpKey) && canJump && grounded)
+        if (Input.GetKeyDown(jumpKey) && canJump && grounded && !isCrouched)
         {
             canJump = false;
             Jump();
@@ -81,15 +107,14 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // Checks if player is ready to sprint
-        if (Input.GetKey(sprintKey) && grounded)
+        if (Input.GetKey(sprintKey) && grounded && !isCrouched)
         {
             speed = sprintSpeed;
         }
-        else
+        else if (grounded && !isCrouched)
         {
             speed = moveSpeed;
         }
-
     }
 
     private void MovePlayer()

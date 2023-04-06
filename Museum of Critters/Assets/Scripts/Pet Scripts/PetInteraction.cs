@@ -10,12 +10,18 @@ public class PetInteraction : MonoBehaviour
 {
     public GameObject petClass;     // Specifies which pet has these interactions
     public GameObject playerClass;  // Specifies the player gameobject, so pet can interact with them
+    public GameObject interMenu;    // Specifies the interaction menu (sets it active)
+    public Camera playerCam;        // Specifies player camera, lets pet know if they are busy
     public bool isLooking;          // Bool that determines whether pet is looking at the player
+
+    public KeyCode interactKey = KeyCode.E; // Interaction key that should only appear when near pet
 
     private void Start()
     {
         isLooking = false;
         petClass.transform.GetComponent<PetMovement_Idle>().enabled = true;
+
+        //Debug.Log(SettingsManager.isLeftHanded);
     }
 
     private void Update()
@@ -25,12 +31,42 @@ public class PetInteraction : MonoBehaviour
             // Do some fun action, probably an animation
             //petClass.transform.RotateAround(playerClass.transform.position, playerClass.transform.up, 90f * Time.deltaTime);
             petClass.transform.LookAt(playerClass.transform);
+            
+            // Show 'E to interact' at top of pet
 
             // I made 'em jump cause its cute, even if it is janky
             if (playerClass.transform.GetComponent<PlayerMovement>().isJumping == true)
             {
                 petClass.transform.GetComponent<Rigidbody>().AddForce(petClass.transform.up * 1.5f, ForceMode.Impulse);
                 petClass.transform.GetComponent<Rigidbody>().AddForce(Vector3.down * 10 * petClass.transform.GetComponent<Rigidbody>().mass);
+            }
+
+            if (Input.GetKeyDown(interactKey))
+            {
+                //BUGS OUT WHEN TWO PETS ARE NEAR, FIX? (or we just have strictly one pet in one pen)
+
+                //interMenu.SetActive(!interMenu.activeSelf);
+                //Cursor.visible = interMenu.activeSelf;
+                if (interMenu.activeSelf == false)
+                {
+                    interMenu.SetActive(true);
+                    Cursor.visible = true;
+                    Cursor.lockState = CursorLockMode.None;
+
+                    // So interact manager knows which pet to play with
+                    // Affects cursor and which pet to target
+                    interMenu.GetComponent<InteractManager>().SetPet(petClass);
+                }
+                else
+                {
+                    interMenu.SetActive(false);
+                    Cursor.visible = false;
+                    Cursor.lockState = CursorLockMode.Locked;
+
+                    // Free interact manager's target pet
+                    // Affects cursor and which pet to target
+                    interMenu.GetComponent<InteractManager>().FreePet();
+                }
             }
         }
     }
@@ -40,7 +76,7 @@ public class PetInteraction : MonoBehaviour
         // Will probably hold all of the pet's "actions"
         // Right now it just looks at the player
 
-        if (collision.gameObject.name == "Player Obj")
+        if (collision.gameObject.name == "Player Obj" && playerCam.GetComponent<PlayerCamera>().isRestricted == false)
         {
             // Disable idle script, cause otherwise we have problems
             petClass.transform.GetComponent<PetMovement_Idle>().enabled = false;
