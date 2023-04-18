@@ -14,7 +14,6 @@ public class MenuManager : MonoBehaviour
     public float maxPause;
     public Slider sensSlider;
     public Slider volSlider;
-    public Toggle handToggle;
 
     private bool isActive;
     private bool enterMuseum;
@@ -96,10 +95,5 @@ public class MenuManager : MonoBehaviour
     public void VolChange()
     {
         SettingsManager.volume = (int)volSlider.value;
-    }
-
-    public void HandChange()
-    {
-        SettingsManager.isLeftHanded = handToggle.isOn;
     }
 }

@@ -29,7 +29,7 @@ public class PlayerMovement : MonoBehaviour
     bool grounded;
     public bool isJumping;
     
-    bool isCrouched;
+    public bool isCrouched;
     float cameraYAxis;
 
     public Transform orientation;

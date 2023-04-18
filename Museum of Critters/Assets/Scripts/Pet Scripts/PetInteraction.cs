@@ -13,8 +13,12 @@ public class PetInteraction : MonoBehaviour
     public GameObject interMenu;    // Specifies the interaction menu (sets it active)
     public Camera playerCam;        // Specifies player camera, lets pet know if they are busy
     public bool isLooking;          // Bool that determines whether pet is looking at the player
+    public float petH;              // Float for determining pet's height
+    public LayerMask isGround;      // Which tag refers to ground
 
     public KeyCode interactKey = KeyCode.E; // Interaction key that should only appear when near pet
+
+    bool petIsGrounded;             // Bool that determines whether pet is touching the ground
 
     private void Start()
     {
@@ -26,22 +30,25 @@ public class PetInteraction : MonoBehaviour
 
     private void Update()
     {
+        //Checks if pet is touching the groud
+        petIsGrounded = Physics.Raycast(petClass.transform.position, Vector3.down, petH * 0.5f, isGround);
+
         if (isLooking)
         {
             // Do some fun action, probably an animation
             //petClass.transform.RotateAround(playerClass.transform.position, playerClass.transform.up, 90f * Time.deltaTime);
             petClass.transform.LookAt(playerClass.transform);
-            
+
             // Show 'E to interact' at top of pet
 
             // I made 'em jump cause its cute, even if it is janky
-            if (playerClass.transform.GetComponent<PlayerMovement>().isJumping == true)
+            if (playerClass.transform.GetComponent<PlayerMovement>().isJumping == true && petIsGrounded)
             {
-                petClass.transform.GetComponent<Rigidbody>().AddForce(petClass.transform.up * 1.5f, ForceMode.Impulse);
-                petClass.transform.GetComponent<Rigidbody>().AddForce(Vector3.down * 10 * petClass.transform.GetComponent<Rigidbody>().mass);
-            }
+                petClass.transform.GetComponent<Rigidbody>().AddForce(Vector3.up * 1.5f, ForceMode.Impulse);
+                petClass.transform.GetComponent<Rigidbody>().AddForce(Vector3.down * 1.2f, ForceMode.Impulse);
+            } 
 
-            if (Input.GetKeyDown(interactKey))
+            if (Input.GetKeyDown(interactKey) && petIsGrounded && interMenu.GetComponent<InteractManager>().isPetting == false)
             {
                 //BUGS OUT WHEN TWO PETS ARE NEAR, FIX? (or we just have strictly one pet in one pen)
 
@@ -83,6 +90,8 @@ public class PetInteraction : MonoBehaviour
 
             petClass.transform.LookAt(playerClass.transform);
             isLooking = true;
+
+            petClass.GetComponent<PetMovement_Idle>().shouldMove = false;
         }
     }
 
@@ -96,6 +105,7 @@ public class PetInteraction : MonoBehaviour
             isLooking = false;
 
             petClass.transform.GetComponent<PetMovement_Idle>().enabled = true;
+            petClass.GetComponent<PetMovement_Idle>().shouldMove = true;
         }
     }
 }

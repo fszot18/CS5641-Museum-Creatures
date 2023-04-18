@@ -45,17 +45,20 @@ public class PlayerCamera : MonoBehaviour
         xRot = Mathf.Clamp(xRot, xRotMin, xRotMax);
 
         // If the camera is locked, clamp player's view on y axis as well
-        if (isRestricted)
+        if (!isRestricted)
         {
             //Debug.Log("yMin: " + (yRot + yRotMin));
             //Debug.Log("yMax: " + (yRot + yRotMax));
             //yRotMin = yRot + yRotMin;
             //yRotMax = yRot + yRotMax;
-            yRot = Mathf.Clamp(yRot, yRotMin, yRotMax);
+            //yRot = Mathf.Clamp(yRot, transform.rotation.y + yRotMin, transform.rotation.y + yRotMax);
+
+            transform.rotation = Quaternion.Euler(xRot, yRot + playerClass.eulerAngles.y, 0);
+            orientation.rotation = Quaternion.Euler(0, yRot + playerClass.eulerAngles.y, 0);
         }
 
-        transform.rotation = Quaternion.Euler(xRot, yRot + playerClass.eulerAngles.y, 0);
-        orientation.rotation = Quaternion.Euler(0, yRot + playerClass.eulerAngles.y, 0);
+        //transform.rotation = Quaternion.Euler(xRot, yRot + playerClass.eulerAngles.y, 0);
+        //orientation.rotation = Quaternion.Euler(0, yRot + playerClass.eulerAngles.y, 0);
     }
 
     // Have func that sets var on 'old' yRot, then use that in isRestricted?
@@ -64,7 +67,7 @@ public class PlayerCamera : MonoBehaviour
     public void lockRotation(GameObject pet)
     {
         // Get y axis coord of pet (?)
-        transform.LookAt(pet.transform.position);
+        transform.LookAt(pet.transform);
         //USE CURSOR AS POINTER? SINCE IN THE MIDDLE? TO DETERMINE WHICH PET THEY ARE POINTING TO?
 
         //yRotMin = transform.rotation.y + yRotMin;

@@ -14,7 +14,4 @@ public class SettingsManager : MonoBehaviour
 
     // Stores volume settings (for save system, take from save file)
     public static int volume = 25;
-
-    // Stores dominant hand preferance (changes which side hand will appear to pet critter) (for save system, take from save file)
-    public static bool isLeftHanded = false;
 }
