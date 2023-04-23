@@ -9,6 +9,8 @@ public class PauseManager : MonoBehaviour
     private bool isActive = false;
     public KeyCode pauseKey = KeyCode.Escape;
 
+    [SerializeField] AudioSource backgroundM;
+
     public GameObject pauseMenu;
     public GameObject interMenu;
     public GameObject playerClass;
@@ -30,6 +32,10 @@ public class PauseManager : MonoBehaviour
         // Make sure settings are saved between scenes (sensX and sensY should be the same)
         sensSlider.value = SettingsManager.sens;
         volSlider.value = SettingsManager.volume;
+        backgroundM.volume = SettingsManager.volume;
+        backgroundM.clip = SettingsManager.music;
+        backgroundM.time = SettingsManager.audioTime;
+        backgroundM.Play();
     }
     
     // Update is called once per frame
@@ -56,12 +62,14 @@ public class PauseManager : MonoBehaviour
             else
             {
                 Cursor.lockState = CursorLockMode.Locked;
+                Save();
             }
         }
     }
 
     public void Resume()
     {
+        Save();
         isActive = false;
         pauseMenu.SetActive(isActive);
 
@@ -76,11 +84,16 @@ public class PauseManager : MonoBehaviour
     public void SensChange()
     {
         SettingsManager.sens = sensSlider.value;
+        //PlayerPrefs.SetFloat("Sens", SettingsManager.sens); //change?
+        //PlayerPrefs.Save();
     }
 
     public void VolChange()
     {
-        SettingsManager.volume = (int)volSlider.value;
+        SettingsManager.volume = volSlider.value;
+        backgroundM.volume = SettingsManager.volume;
+        //PlayerPrefs.SetFloat("Volume", SettingsManager.volume); //change?
+        //PlayerPrefs.Save();
     }
 
     public void BackMainMenu(string newScene)
@@ -94,6 +107,8 @@ public class PauseManager : MonoBehaviour
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
+        SettingsManager.audioTime = backgroundM.time;
+
         SceneManager.LoadScene(newScene);
     }
 
@@ -102,5 +117,9 @@ public class PauseManager : MonoBehaviour
         // Ask for confirmation
         // Save
         Debug.Log("I have saved!");
+        PlayerPrefs.SetInt("SelectAudio", SettingsManager.audioSelect);
+        PlayerPrefs.SetFloat("SensitivitySens", SettingsManager.sens); //change?
+        PlayerPrefs.SetFloat("MusicVolume", SettingsManager.volume); //change?
+        PlayerPrefs.Save();
     }
 }
