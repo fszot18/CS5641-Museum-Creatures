@@ -37,7 +37,20 @@ public class PetInteraction : MonoBehaviour
         {
             // Do some fun action, probably an animation
             //petClass.transform.RotateAround(playerClass.transform.position, playerClass.transform.up, 90f * Time.deltaTime);
-            petClass.transform.LookAt(playerClass.transform);
+            if (interMenu.GetComponent<InteractManager>().isFeeding == false && interMenu.GetComponent<InteractManager>().isFetching == false)
+            {
+                petClass.transform.LookAt(playerClass.transform);
+
+                // Tried to go for a smooth rotation, but didn't have time to figure it out
+                //var rotation = Quaternion.LookRotation(playerClass.transform.position - petClass.transform.position);
+                //petClass.transform.rotation = Quaternion.Slerp(petClass.transform.rotation, rotation, Time.deltaTime * 3.0f);
+            }
+            //petClass.transform.LookAt(playerClass.transform);
+
+            if (interMenu.GetComponent<InteractManager>().isFetching == true)
+            {
+                playerCam.transform.LookAt(petClass.transform);
+            }
 
             // Show 'E to interact' at top of pet
 
@@ -48,9 +61,10 @@ public class PetInteraction : MonoBehaviour
                 petClass.transform.GetComponent<Rigidbody>().AddForce(Vector3.down * 1.2f, ForceMode.Impulse);
             } 
 
-            if (Input.GetKeyDown(interactKey) && petIsGrounded && interMenu.GetComponent<InteractManager>().isPetting == false)
+            if (Input.GetKeyDown(interactKey) && petIsGrounded && interMenu.GetComponent<InteractManager>().isPetting == false && interMenu.GetComponent<InteractManager>().isFeeding == false && interMenu.GetComponent<InteractManager>().isFetching == false)
             {
                 //BUGS OUT WHEN TWO PETS ARE NEAR, FIX? (or we just have strictly one pet in one pen)
+
 
                 //interMenu.SetActive(!interMenu.activeSelf);
                 //Cursor.visible = interMenu.activeSelf;
@@ -63,6 +77,7 @@ public class PetInteraction : MonoBehaviour
                     // So interact manager knows which pet to play with
                     // Affects cursor and which pet to target
                     interMenu.GetComponent<InteractManager>().SetPet(petClass);
+                    playerClass.GetComponent<Rigidbody>().velocity = Vector3.zero;
                 }
                 else
                 {
@@ -83,7 +98,7 @@ public class PetInteraction : MonoBehaviour
         // Will probably hold all of the pet's "actions"
         // Right now it just looks at the player
 
-        if (collision.gameObject.name == "Player Obj" && playerCam.GetComponent<PlayerCamera>().isRestricted == false)
+        if (collision.gameObject.name == "Player Obj" && playerCam.GetComponent<PlayerCamera>().isRestricted == false && interMenu.GetComponent<InteractManager>().isFetching == false)
         {
             // Disable idle script, cause otherwise we have problems
             petClass.transform.GetComponent<PetMovement_Idle>().enabled = false;
@@ -97,7 +112,7 @@ public class PetInteraction : MonoBehaviour
 
     private void OnTriggerExit(Collider collision)
     {
-        if (collision.gameObject.name == "Player Obj")
+        if (collision.gameObject.name == "Player Obj" && interMenu.GetComponent<InteractManager>().isFetching == false)
         {
             // Resets pet's rotation so that it is 'flat' on the ground again
             // May need to change when we put actual models in (attach to model's head instead?)

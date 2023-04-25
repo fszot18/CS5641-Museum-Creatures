@@ -68,6 +68,7 @@ public class PlayerCamera : MonoBehaviour
     {
         // Get y axis coord of pet (?)
         transform.LookAt(pet.transform);
+        //orientation.LookAt(pet.transform);
         //USE CURSOR AS POINTER? SINCE IN THE MIDDLE? TO DETERMINE WHICH PET THEY ARE POINTING TO?
 
         //yRotMin = transform.rotation.y + yRotMin;
