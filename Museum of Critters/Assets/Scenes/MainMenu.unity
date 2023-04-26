@@ -1159,7 +1159,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 2ffc412ad8504bf47afb99df1bb39520, type: 3}
   mainCam: {fileID: 1036686951}
   camSpeed: 0.04
-  maxPause: 1.25
+  maxPause: 1.5
   sensSlider: {fileID: 1264243625}
   volSlider: {fileID: 1952141497}
   musicDropdown: {fileID: 1580866554}
