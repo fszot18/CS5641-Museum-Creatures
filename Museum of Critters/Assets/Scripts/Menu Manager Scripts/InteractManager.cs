@@ -92,17 +92,17 @@ public class InteractManager : MonoBehaviour
                 // Make pet jump three times to give illusion of eating
                 if (petTimer >= 1.0f && petTimer < 1.5f) {
                     pet.transform.GetComponent<Rigidbody>().AddForce(Vector3.up * 1.25f, ForceMode.Impulse);
-                    pet.transform.GetComponent<Rigidbody>().AddForce(Vector3.down * 1.1f, ForceMode.Impulse);
+                    pet.transform.GetComponent<Rigidbody>().AddForce(Vector3.down * 1f, ForceMode.Impulse);
                 }
                 else if (petTimer >= 2.0f && petTimer < 2.5f)
                 {
                     pet.transform.GetComponent<Rigidbody>().AddForce(Vector3.up * 1.25f, ForceMode.Impulse);
-                    pet.transform.GetComponent<Rigidbody>().AddForce(Vector3.down * 1.1f, ForceMode.Impulse);
+                    pet.transform.GetComponent<Rigidbody>().AddForce(Vector3.down * 1f, ForceMode.Impulse);
                 }
                 else if (petTimer >= 4.0f && petTimer < 4.5f)
                 {
                     pet.transform.GetComponent<Rigidbody>().AddForce(Vector3.up * 1.25f, ForceMode.Impulse);
-                    pet.transform.GetComponent<Rigidbody>().AddForce(Vector3.down * 1.1f, ForceMode.Impulse);
+                    pet.transform.GetComponent<Rigidbody>().AddForce(Vector3.down * 1f, ForceMode.Impulse);
                 }
             }
             else
